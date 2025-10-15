@@ -33,8 +33,20 @@ const SignupPage = () => {
       await signup(email, password);
       navigate('/profile');
     } catch (err) {
-      setError('Failed to create an account. ' + err.message);
-      console.error(err);
+      console.error('Signup error:', err);
+      
+      // Check for specific Firebase error codes
+      const errorCode = err.code;
+      
+      if (errorCode === 'auth/email-already-in-use') {
+        setError('An account with this email already exists. Please log in instead.');
+      } else if (errorCode === 'auth/invalid-email') {
+        setError('Invalid email address format.');
+      } else if (errorCode === 'auth/weak-password') {
+        setError('Password is too weak. Please use a stronger password.');
+      } else {
+        setError('Failed to create an account. ' + (err.message || 'Please try again.'));
+      }
     } finally {
       setLoading(false);
     }
@@ -68,7 +80,16 @@ const SignupPage = () => {
 
         {error && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-2xl">
-            {error}
+            <p className="font-bold mb-1">Sign Up Failed</p>
+            <p>{error}</p>
+            {error.includes('already exists') && (
+              <Link 
+                to="/login" 
+                className="inline-block mt-3 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200 font-bold"
+              >
+                Go to Login
+              </Link>
+            )}
           </div>
         )}
 

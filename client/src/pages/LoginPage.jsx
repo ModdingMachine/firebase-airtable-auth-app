@@ -24,8 +24,24 @@ const LoginPage = () => {
       await login(email, password);
       navigate('/profile');
     } catch (err) {
-      setError('Failed to log in. Please check your credentials.');
-      console.error(err);
+      console.error('Login error:', err);
+      
+      // Check for specific Firebase error codes
+      const errorCode = err.code;
+      
+      if (errorCode === 'auth/user-not-found') {
+        setError("No account found with this email. Please create an account first.");
+      } else if (errorCode === 'auth/wrong-password') {
+        setError('Incorrect password. Please try again.');
+      } else if (errorCode === 'auth/invalid-email') {
+        setError('Invalid email address format.');
+      } else if (errorCode === 'auth/too-many-requests') {
+        setError('Too many failed login attempts. Please try again later.');
+      } else if (errorCode === 'auth/invalid-credential') {
+        setError('Invalid credentials. Please check your email and password, or create a new account.');
+      } else {
+        setError('Failed to log in. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }
@@ -59,7 +75,16 @@ const LoginPage = () => {
 
         {error && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-2xl">
-            {error}
+            <p className="font-bold mb-1">Login Failed</p>
+            <p>{error}</p>
+            {(error.includes('No account found') || error.includes('create a new account')) && (
+              <Link 
+                to="/signup" 
+                className="inline-block mt-3 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200 font-bold"
+              >
+                Create Account
+              </Link>
+            )}
           </div>
         )}
 

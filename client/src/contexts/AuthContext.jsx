@@ -24,9 +24,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('Account created successfully for:', email);
       // Bootstrap will be called by onAuthStateChanged
       return userCredential.user;
     } catch (err) {
+      console.error('Signup error:', err.code, err.message);
       setError(err.message);
       throw err;
     }
@@ -37,8 +39,10 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('Login successful for:', email);
       return userCredential.user;
     } catch (err) {
+      console.error('Login error:', err.code, err.message);
       setError(err.message);
       throw err;
     }
@@ -72,11 +76,13 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async () => {
     try {
       const data = await bootstrapUser();
+      console.log('User profile loaded:', data.user.email);
       setUserProfile(data.user);
       return data.user;
     } catch (err) {
       console.error('Error fetching user profile:', err);
       setError(err.message);
+      throw err;
     }
   };
 
