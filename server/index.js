@@ -74,7 +74,18 @@ const findUserByUID = async (uid) => {
 
     return records.length > 0 ? records[0] : null;
   } catch (error) {
-    console.error('Error finding user:', error);
+    console.error('❌ Error finding user in Airtable:', error);
+    if (error.statusCode === 403) {
+      console.error('🔐 AUTHORIZATION ERROR: Check your Airtable token permissions!');
+      console.error('   Your token needs:');
+      console.error('   - data.records:read scope');
+      console.error('   - data.records:write scope');
+      console.error('   - Access to base:', process.env.AIRTABLE_BASE_ID);
+    } else if (error.statusCode === 404) {
+      console.error('❌ BASE/TABLE NOT FOUND: Check your Base ID and table name');
+      console.error('   Base ID:', process.env.AIRTABLE_BASE_ID);
+      console.error('   Table Name:', process.env.AIRTABLE_TABLE_NAME);
+    }
     throw error;
   }
 };
@@ -245,7 +256,17 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log('=================================');
+  console.log(`✅ Server running on http://localhost:${PORT}`);
   console.log('Environment:', process.env.NODE_ENV);
+  console.log('=================================');
+  console.log('Configuration Check:');
+  console.log('Firebase Project ID:', process.env.FIREBASE_PROJECT_ID ? '✅ Set' : '❌ Missing');
+  console.log('Firebase Private Key:', process.env.FIREBASE_PRIVATE_KEY ? '✅ Set' : '❌ Missing');
+  console.log('Firebase Client Email:', process.env.FIREBASE_CLIENT_EMAIL ? '✅ Set' : '❌ Missing');
+  console.log('Airtable API Key:', process.env.AIRTABLE_API_KEY ? '✅ Set' : '❌ Missing');
+  console.log('Airtable Base ID:', process.env.AIRTABLE_BASE_ID || '❌ Missing');
+  console.log('Airtable Table Name:', process.env.AIRTABLE_TABLE_NAME || '❌ Missing');
+  console.log('=================================');
 });
 
