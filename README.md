@@ -1,4 +1,4 @@
-# Firebase Airtable Authentication App
+# CHE DEV APP
 
 A complete, production-ready web application featuring Firebase authentication with Airtable for user profile storage. Built with React, Vite, Express, and styled with the beautiful "Plastic Fantastic" design system featuring glassmorphism effects.
 
