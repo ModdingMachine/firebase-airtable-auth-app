@@ -254,8 +254,42 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Test Airtable connection on startup
+const testAirtableConnection = async () => {
+  try {
+    console.log('🔍 Testing Airtable connection...');
+    const records = await usersTable.select({ maxRecords: 1 }).firstPage();
+    console.log('✅ Airtable connection successful!');
+    console.log(`   Found ${records.length > 0 ? 'existing records' : 'empty table (ready for new users)'}`);
+  } catch (error) {
+    console.error('❌ AIRTABLE CONNECTION FAILED!');
+    console.error('   Error:', error.message);
+    console.error('   Status:', error.statusCode);
+    console.error('');
+    console.error('🔧 TROUBLESHOOTING:');
+    
+    if (error.statusCode === 403) {
+      console.error('   1. Go to: https://airtable.com/create/tokens');
+      console.error('   2. Find your token and click Edit (or create new)');
+      console.error('   3. Under "Access", make sure this base is selected:');
+      console.error('      Base ID:', process.env.AIRTABLE_BASE_ID);
+      console.error('   4. Make sure these scopes are checked:');
+      console.error('      ✓ data.records:read');
+      console.error('      ✓ data.records:write');
+      console.error('   5. Save and copy the token (starts with "pat")');
+      console.error('   6. Update AIRTABLE_API_KEY in server/.env');
+      console.error('   7. Restart the server');
+    } else if (error.statusCode === 404) {
+      console.error('   1. Verify your Base ID:', process.env.AIRTABLE_BASE_ID);
+      console.error('   2. Verify your table name:', process.env.AIRTABLE_TABLE_NAME);
+      console.error('   3. Check that the table exists in Airtable');
+    }
+    console.error('');
+  }
+};
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log('=================================');
   console.log(`✅ Server running on http://localhost:${PORT}`);
   console.log('Environment:', process.env.NODE_ENV);
@@ -264,9 +298,28 @@ app.listen(PORT, () => {
   console.log('Firebase Project ID:', process.env.FIREBASE_PROJECT_ID ? '✅ Set' : '❌ Missing');
   console.log('Firebase Private Key:', process.env.FIREBASE_PRIVATE_KEY ? '✅ Set' : '❌ Missing');
   console.log('Firebase Client Email:', process.env.FIREBASE_CLIENT_EMAIL ? '✅ Set' : '❌ Missing');
-  console.log('Airtable API Key:', process.env.AIRTABLE_API_KEY ? '✅ Set' : '❌ Missing');
+  
+  // Check if using Personal Access Token (new format)
+  const apiKey = process.env.AIRTABLE_API_KEY;
+  if (apiKey) {
+    if (apiKey.startsWith('pat')) {
+      console.log('Airtable API Key: ✅ Set (Personal Access Token)');
+    } else if (apiKey.startsWith('key')) {
+      console.log('Airtable API Key: ⚠️  Set (OLD FORMAT - use Personal Access Token instead!)');
+      console.log('   → Create new token at: https://airtable.com/create/tokens');
+    } else {
+      console.log('Airtable API Key: ⚠️  Set (unknown format)');
+    }
+  } else {
+    console.log('Airtable API Key: ❌ Missing');
+  }
+  
   console.log('Airtable Base ID:', process.env.AIRTABLE_BASE_ID || '❌ Missing');
   console.log('Airtable Table Name:', process.env.AIRTABLE_TABLE_NAME || '❌ Missing');
+  console.log('=================================');
+  
+  // Test the Airtable connection
+  await testAirtableConnection();
   console.log('=================================');
 });
 
