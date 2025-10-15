@@ -116,7 +116,12 @@ app.post('/api/bootstrap', authenticateUser, async (req, res) => {
 
     // Extract name from email for default display name
     const emailUsername = email.split('@')[0];
-    const defaultDisplayName = emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
+    // Capitalize first letter and replace dots/underscores with spaces
+    const formattedName = emailUsername
+      .replace(/[._]/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
 
     // Create new user record in Airtable with default values
     const newRecord = await usersTable.create([
@@ -124,7 +129,7 @@ app.post('/api/bootstrap', authenticateUser, async (req, res) => {
         fields: {
           uid,
           email,
-          displayName: defaultDisplayName,
+          displayName: formattedName,
           phone: '', // Empty phone initially
           role: 'Parent', // Default role
           // updatedAt is automatically set by Airtable (Last modified time field)
@@ -132,7 +137,7 @@ app.post('/api/bootstrap', authenticateUser, async (req, res) => {
       },
     ]);
 
-    console.log(`New user created: ${email} (${uid})`);
+    console.log(`✅ New user created in Airtable: ${email} (${uid})`);
 
     return res.status(201).json({
       message: 'User created successfully',

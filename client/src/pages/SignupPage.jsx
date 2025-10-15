@@ -5,12 +5,14 @@ import GlassCard from '../components/GlassCard';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import BackgroundBlobs from '../components/BackgroundBlobs';
+import AuthLoading from '../components/AuthLoading';
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   
   const { signup, signInWithGoogle } = useAuth();
@@ -55,20 +57,33 @@ const SignupPage = () => {
   const handleGoogleSignup = async () => {
     try {
       setError('');
-      setLoading(true);
+      setGoogleLoading(true);
       await signInWithGoogle();
+      // Wait for the bootstrap to complete (account creation in Airtable)
+      await new Promise(resolve => setTimeout(resolve, 1500));
       navigate('/profile');
     } catch (err) {
-      setError('Failed to sign up with Google.');
-      console.error(err);
+      console.error('Google signup error:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-up cancelled. Please try again.');
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Pop-up blocked. Please enable pop-ups for this site.');
+      } else if (err.code === 'auth/account-exists-with-different-credential') {
+        setError('An account already exists with the same email. Try signing in with email/password.');
+      } else {
+        setError('Failed to sign up with Google. Please try again.');
+      }
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-pastel-bg flex items-center justify-center p-4">
-      <BackgroundBlobs />
+    <>
+      {googleLoading && <AuthLoading message="Creating your account..." />}
+      
+      <div className="min-h-screen bg-pastel-bg flex items-center justify-center p-4">
+        <BackgroundBlobs />
       
       <GlassCard className="w-full max-w-md p-8">
         <h1 className="text-4xl font-extrabold text-gray-800 mb-2 tracking-tighter text-center">
@@ -168,6 +183,7 @@ const SignupPage = () => {
         </p>
       </GlassCard>
     </div>
+    </>
   );
 };
 

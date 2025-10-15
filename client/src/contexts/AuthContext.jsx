@@ -48,13 +48,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign in with Google
+  // Sign in with Google (automatically creates account if doesn't exist)
   const signInWithGoogle = async () => {
     try {
       setError(null);
       const result = await signInWithPopup(auth, googleProvider);
+      console.log('Google sign-in successful:', result.user.email);
+      // The bootstrap will be automatically called by onAuthStateChanged
+      // This creates an Airtable record if it doesn't exist
       return result.user;
     } catch (err) {
+      console.error('Google sign-in error:', err.code, err.message);
       setError(err.message);
       throw err;
     }
@@ -92,8 +96,14 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(user);
       
       if (user) {
-        // User is signed in, fetch their profile from Airtable
-        await fetchUserProfile();
+        // User is signed in, fetch/create their profile from Airtable
+        try {
+          await fetchUserProfile();
+          console.log('User profile synced with Airtable');
+        } catch (err) {
+          console.error('Failed to sync user profile:', err);
+          // Don't block the UI if Airtable sync fails
+        }
       } else {
         // User is signed out
         setUserProfile(null);
