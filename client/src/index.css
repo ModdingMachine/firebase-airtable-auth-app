@@ -1,35 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: 'Nunito', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-@layer utilities {
+@layer components {
   .glass-card {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(200, 200, 220, 0.4);
-    border-radius: 2rem;
-    box-shadow: 
-      0 8px 32px 0 rgba(31, 38, 135, 0.15),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-2xl shadow-slate-200;
   }
 
   .glass-card-hover {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .glass-card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-      0 12px 40px 0 rgba(31, 38, 135, 0.2),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+    @apply transition-all duration-300 hover:bg-white/80 hover:shadow-2xl;
   }
 }
 
+@layer utilities {
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}

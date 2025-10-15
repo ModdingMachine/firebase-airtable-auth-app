@@ -5,12 +5,11 @@ import { getProfile, updateProfile } from '../services/api';
 import GlassCard from '../components/GlassCard';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import Select from '../components/Select';
 import BackgroundBlobs from '../components/BackgroundBlobs';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const ProfilePage = () => {
-  const { currentUser, userProfile, logout, fetchUserProfile } = useAuth();
+  const { currentUser, userProfile, logout, fetchUserProfile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(false);
@@ -25,13 +24,13 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!authLoading && !currentUser) {
       navigate('/login');
       return;
     }
 
     loadProfile();
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, authLoading]);
 
   const loadProfile = async () => {
     try {
@@ -68,7 +67,11 @@ const ProfilePage = () => {
       setError('');
       setSuccess('');
       
-      await updateProfile(formData);
+      // Only send displayName and phone - role cannot be changed by users
+      await updateProfile({
+        displayName: formData.displayName,
+        phone: formData.phone,
+      });
       await fetchUserProfile(); // Refresh the profile in context
       
       setSuccess('Profile updated successfully!');
@@ -96,12 +99,6 @@ const ProfilePage = () => {
   if (loading) {
     return <LoadingSpinner message="Loading profile..." />;
   }
-
-  const roleOptions = [
-    { value: 'Parent', label: 'Parent' },
-    { value: 'Educator', label: 'Educator' },
-    { value: 'Admin', label: 'Admin' },
-  ];
 
   return (
     <div className="min-h-screen bg-pastel-bg flex items-center justify-center p-4">
@@ -158,14 +155,15 @@ const ProfilePage = () => {
             disabled={saving}
           />
 
-          <Select
-            label="Role"
-            name="role"
-            value={formData.role}
-            onChange={handleInputChange}
-            options={roleOptions}
-            disabled={saving}
-          />
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Role
+            </label>
+            <div className="w-full px-5 py-3 bg-gray-100 border-2 border-gray-300 rounded-2xl text-gray-600 cursor-not-allowed">
+              {formData.role}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">Role cannot be changed by users</p>
+          </div>
 
           <div className="flex gap-4 mt-6">
             <Button

@@ -45,6 +45,13 @@ api.interceptors.response.use(
 );
 
 // API methods
+export const checkEmailExists = async (email) => {
+  const response = await api.get('/api/check-email', {
+    params: { email }
+  });
+  return response.data;
+};
+
 export const bootstrapUser = async () => {
   const response = await api.post('/api/bootstrap');
   return response.data;
@@ -57,6 +64,37 @@ export const getProfile = async () => {
 
 export const updateProfile = async (profileData) => {
   const response = await api.put('/api/profile', profileData);
+  return response.data;
+};
+
+// Admin-only methods
+export const searchUsers = async (query) => {
+  const response = await api.get('/api/admin/users/search', {
+    params: { q: query }
+  });
+  return response.data;
+};
+
+export const updateUserAsAdmin = async (uid, userData) => {
+  const response = await api.put(`/api/admin/users/${uid}`, userData);
+  return response.data;
+};
+
+// Issue reporting methods
+export const reportIssue = async (issueData) => {
+  const response = await api.post('/api/issues', issueData);
+  return response.data;
+};
+
+export const getIssues = async (includeResolved = false) => {
+  const response = await api.get('/api/issues', {
+    params: { includeResolved }
+  });
+  return response.data;
+};
+
+export const resolveIssue = async (issueId) => {
+  const response = await api.put(`/api/issues/${issueId}/resolve`);
   return response.data;
 };
 

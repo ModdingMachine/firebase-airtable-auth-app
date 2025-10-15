@@ -1,353 +1,377 @@
-# Firebase Airtable Authentication App
+# CHE Dev Trial Project
 
-A complete, production-ready web application featuring Firebase authentication with Airtable for user profile storage. Built with React, Vite, Express, and styled with the beautiful "Plastic Fantastic" design system featuring glassmorphism effects.
+A complete role-based web application with Firebase authentication and Airtable database integration.
 
-**GitHub Repository**: https://github.com/ModdingMachine/firebase-airtable-auth-app
+## Prerequisites
 
-## Quick Start
+- Node.js 18+ installed
+- Access to the Firebase project
+- Access to the Airtable base
+- A modern web browser
 
-**IMPORTANT**: This app requires Firebase and Airtable credentials to function. Follow the setup guide before running.
+## Setup Instructions
 
-### 1. Set Up Credentials (15 minutes)
-See **[SETUP_GUIDE.md](SETUP_GUIDE.md)** for detailed instructions on:
-- Creating an Airtable base and getting your API credentials
-- Setting up Firebase authentication and service account
-- Configuring environment variables
+### 1. Clone and Install
 
-### 2. Create Environment Files
 ```bash
-# Create server/.env (see server/.env.example for template)
-# Create client/.env (see client/.env.example for template)
-```
+# Navigate to project directory
+cd "CHE Dev Trial Project"
 
-### 3. Install Dependencies
-```bash
+# Install dependencies
 npm install
-cd server && npm install
-cd ../client && npm install
 ```
 
-### 4. Run the Application
+### 2. Configure Environment Variables
+
+#### Server Environment (`server/.env`)
+
+Create a file called `.env` in the `server` directory:
+
+```env
+# Firebase Configuration
+FIREBASE_PROJECT_ID=fir-airtable-auth
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-fbsvc@fir-airtable-auth.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
+[Your Firebase private key here - ask project admin]
+-----END PRIVATE KEY-----"
+
+# Airtable Configuration
+AIRTABLE_BASE_ID=appaRLpjx3EGZlgke
+AIRTABLE_PAT=[Your Personal Access Token - ask project admin]
+AIRTABLE_TABLE_NAME=Users
+AIRTABLE_ISSUES_TABLE_NAME=Issues
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+```
+
+#### Client Environment (`client/.env`)
+
+Create a file called `.env` in the `client` directory:
+
+```env
+# Firebase Web SDK Configuration
+VITE_FIREBASE_API_KEY=[Your API key - ask project admin]
+VITE_FIREBASE_AUTH_DOMAIN=fir-airtable-auth.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=fir-airtable-auth
+VITE_FIREBASE_STORAGE_BUCKET=fir-airtable-auth.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=[Your sender ID - ask project admin]
+VITE_FIREBASE_APP_ID=[Your app ID - ask project admin]
+
+# API Configuration
+VITE_API_URL=http://localhost:5000
+
+# Sync Interval (optional)
+VITE_SYNC_INTERVAL=10000
+```
+
+### 3. Run the Application
+
 ```bash
 # From project root - runs both client and server
 npm run dev
 ```
 
-The app will open automatically at **http://localhost:5173**
+The application will automatically open at **http://localhost:5173**
 
-## Features
+---
 
-- **Authentication**: Email/Password sign-up/login + Google Sign-In
-- **User Profiles**: Stored in Airtable with editable fields (displayName, phone, role)
-- **Auto-Bootstrap**: First login automatically creates user record in Airtable
-- **Protected Routes**: Must be authenticated to access profile
-- **Beautiful UI**: Glassmorphism design with parallax background effects
-- **Responsive**: Mobile-friendly design
-- **Secure API**: Bearer token authentication with Firebase Admin SDK
-- **Error Handling**: Clear error messages and loading states
+## Complete Feature List
+
+### Authentication & Security
+- Email/password login and signup
+- Google account login and signup
+- Sessions persist across browser restarts
+- Minimum 5-minute session length with activity tracking
+- Detects and handles whether account uses Google or password
+- Prefills signup if account does not exist on login attempt
+- Validates email and phone formats
+- All API calls require valid, server-verified Firebase tokens
+- Protected routes (redirect if not authenticated)
+- Access control based on user role
+
+### User Roles & Portals
+- Four user roles: Parent, Educator, Admin, IT
+- Each role has a dedicated portal/interface
+- Dashboard automatically routes to the right portal based on role
+- UI features shown depend on user role
+
+### Profile Management
+- View and edit your profile (display name, phone, role)
+- See your current role
+- Real-time sync of profile changes with Airtable
+- New signups can provide name and phone at registration
+- Airtable record created automatically on first login
+
+### Admin Features
+- Search and manage all users
+- Edit user display name, phone, and role (except your own as admin)
+- Change roles between Parent, Educator, Admin, and IT
+- Duplicate users are automatically filtered out of results
+- Dashboard for centralized user management
+- Admins can view all IT tickets
+
+### IT Ticket System
+- Parents and Educators can submit IT tickets with descriptions
+- All issues tracked and stored
+- IT and Admin roles can view and manage all tickets
+- Filter tickets by open/resolved status
+- IT and Admin can mark issues resolved
+- Each ticket records who submitted it
+- Issue list updates in real time (every 5 seconds)
+- Shows counts of open, resolved, and total issues
+- Ignores any empty/blank issues from the database
+
+### UI/UX Features
+- Modern design with frosted glass cards and animated backgrounds
+- Responsive layout (desktop, tablet, mobile)
+- Loading states and indicators, error and success messages
+- Sync status shown in UI
+- Spinners for async actions
+- Real-time validation for forms
+- Hover effects and smooth animations
+- Custom reusable UI components
+
+### Database Integration
+- Uses Airtable for users and issues/tickets
+- Profiles synced every 10 seconds, issues every 5 seconds
+- UI updates immediately on change, data syncs in the background
+- System recovers gracefully from sync errors
+- Airtable connection is validated at server start
+- Server filters and deduplicates records for performance
+
+### Developer Experience
+- Hot reload for front and back end
+- Client and server can be run together in development
+- Console logging and error details for debugging
+- Uses environment variables for credentials and config
+- Modular, maintainable code structure with separation of concerns
+- Centralized state with Context API
+- API calls managed through Axios service layer
+
+---
+
+#### Test Accounts for Feature Testing
+
+| Username            | Password |
+|---------------------|----------|
+| parent@test.com     | password |
+| educator@test.com   | password |
+| admin@test.com      | password |
+| it@test.com         | password |
+
+
+---
+
+## Functionality Testing Checklist
+
+### Authentication Tests
+
+**Email/Password Authentication:**
+- [ ] Create account with email and password
+- [ ] Log out and log back in with same credentials
+- [ ] Try logging in with wrong password (should show error)
+- [ ] Try logging in with non-existent email (should redirect to signup with email prefilled)
+- [ ] Close browser and reopen - should stay logged in
+- [ ] Refresh page while logged in - should stay logged in
+
+**Google Authentication:**
+- [ ] Sign in with Google account
+- [ ] Verify profile is created in Airtable
+- [ ] Log out and sign in with Google again
+- [ ] Try logging in with email/password for a Google account (should suggest Google login)
+- [ ] Close browser and reopen - should stay logged in
+
+**Account Detection:**
+- [ ] Create account with email/password
+- [ ] Log out, then try to create another account with same email (should show error)
+- [ ] Try logging in with password for a Google-only account (should suggest Google)
+
+### Profile Management Tests
+
+**View and Edit Profile:**
+- [ ] Navigate to "My Profile" page
+- [ ] View current profile information
+- [ ] Update display name and save
+- [ ] Update phone number and save
+- [ ] Verify changes appear in Airtable Users table
+- [ ] Refresh page - changes should persist
+
+**Profile During Signup:**
+- [ ] Sign up with new email
+- [ ] Add display name during signup
+- [ ] Add phone number during signup
+- [ ] Verify information appears in profile after login
+
+### Role-Based Portal Tests
+
+**Parent Portal:**
+- [ ] Log in as Parent role user
+- [ ] Verify you see Parent Portal
+- [ ] Submit an IT ticket
+- [ ] Verify ticket appears in Airtable Issues table
+
+**Educator Portal:**
+- [ ] Log in as Educator role user
+- [ ] Verify you see Educator Portal
+- [ ] Submit an IT ticket
+- [ ] Verify ticket appears in Airtable Issues table
+
+**Admin Portal:**
+- [ ] Log in as Admin role user
+- [ ] Verify you see Admin Portal
+- [ ] View system error logs section
+- [ ] Expand error logs and see IT tickets
+
+**IT Portal:**
+- [ ] Log in as IT role user
+- [ ] Verify you see IT Portal
+- [ ] View issue statistics (open/resolved/total)
+- [ ] See list of open issues
+
+### Admin Features Tests
+
+**User Search:**
+- [ ] Go to Admin Portal
+- [ ] Search for user by email
+- [ ] Search for user by name
+- [ ] Verify no duplicate results appear
+- [ ] Try searching with no results
+
+**User Management:**
+- [ ] Search for a user
+- [ ] Click "Edit" on a user (not yourself)
+- [ ] Change user's display name
+- [ ] Change user's phone number
+- [ ] Change user's role
+- [ ] Save changes
+- [ ] Verify changes in Airtable Users table
+- [ ] Try to edit your own profile (should be disabled)
+
+### IT Ticket System Tests
+
+**Submit Tickets (as Parent/Educator):**
+- [ ] Log in as Parent or Educator
+- [ ] Scroll to "Submit IT Ticket" section
+- [ ] Enter issue summary
+- [ ] Enter detailed description
+- [ ] Submit ticket
+- [ ] Verify success message
+- [ ] Check Airtable Issues table for new ticket
+
+**Manage Tickets (as IT/Admin):**
+- [ ] Log in as IT or Admin
+- [ ] View list of open issues
+- [ ] Check issue statistics are correct
+- [ ] Toggle "Show All" to see resolved issues
+- [ ] Click "Mark Resolved" on an issue
+- [ ] Verify issue disappears from open list
+- [ ] Check Airtable - issue should be marked resolved
+
+**Real-Time Sync:**
+- [ ] Open IT Portal
+- [ ] In another window, manually add issue to Airtable
+- [ ] Wait 5 seconds
+- [ ] Verify new issue appears automatically
+- [ ] Watch for "Syncing with database..." indicator
+
+### Session & Persistence Tests
+
+
+---
 
 ## Project Structure
 
 ```
-firebase-airtable-auth-app/
-├── client/              # Vite React frontend
+CHE Dev Trial Project/
+├── client/                  # React Frontend
 │   ├── src/
-│   │   ├── components/  # Reusable UI components (GlassCard, Button, etc.)
-│   │   ├── pages/       # Login, Signup, Profile pages
-│   │   ├── contexts/    # AuthContext for state management
-│   │   ├── services/    # API service layer (axios)
-│   │   └── config/      # Firebase Web SDK configuration
-│   ├── .env             # Client environment variables (create this)
+│   │   ├── components/      # Reusable UI components
+│   │   │   ├── AdminUserManagement.jsx
+│   │   │   ├── BackgroundBlobs.jsx
+│   │   │   ├── GlassCard.jsx
+│   │   │   ├── SubmitTicket.jsx
+│   │   │   ├── IssuesList.jsx
+│   │   │   └── ... (other components)
+│   │   ├── pages/          # Main application pages
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── SignupPage.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── ProfilePage.jsx
+│   │   │   ├── ParentPortal.jsx
+│   │   │   ├── EducatorPortal.jsx
+│   │   │   ├── AdminPortal.jsx
+│   │   │   └── ITPortal.jsx
+│   │   ├── contexts/       # React Context for state
+│   │   │   ├── AuthContext.jsx
+│   │   │   └── ErrorContext.jsx
+│   │   ├── services/       # API service layer
+│   │   │   └── api.js
+│   │   └── config/         # Firebase configuration
+│   │       └── firebase.js
+│   ├── .env               # Client environment variables
 │   └── package.json
 │
-├── server/              # Express API backend
-│   ├── index.js         # API endpoints and auth middleware
-│   ├── .env             # Server environment variables (create this)
+├── server/                # Express Backend
+│   ├── index.js          # API endpoints and middleware
+│   ├── .env             # Server environment variables
 │   └── package.json
 │
-├── SETUP_GUIDE.md       # Detailed setup instructions
-├── NextSteps.md         # Ideas for extending the app
-├── README.md            # This file
-└── package.json         # Root workspace configuration
+└── package.json          # Root workspace scripts
 ```
 
-## What You Have
+## API Endpoints Reference
 
-A complete web application with:
-- Beautiful "Plastic Fantastic" UI with glassmorphism effects
-- Firebase authentication (Email/Password + Google Sign-In)
-- Airtable database for user profiles
-- Secure Express API backend
-- React frontend with Vite hot reload
-- Clean, maintainable code architecture
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| GET | `/health` | Public | Health check |
+| GET | `/api/check-email` | Public | Check if email exists in database |
+| POST | `/api/bootstrap` | Authenticated | Create/get user on first login |
+| GET | `/api/profile` | Authenticated | Get current user profile |
+| PUT | `/api/profile` | Authenticated | Update own profile |
+| GET | `/api/admin/users/search` | Admin | Search all users |
+| PUT | `/api/admin/users/:uid` | Admin | Update any user profile |
+| POST | `/api/issues` | Authenticated | Submit IT ticket |
+| GET | `/api/issues` | IT/Admin | Get all issues |
+| PUT | `/api/issues/:id/resolve` | IT/Admin | Mark issue resolved |
 
-## Prerequisites
+## Technology Stack
 
-- Node.js 18+ and npm
-- Firebase account (free tier works)
-- Airtable account (free tier works)
-- Git and GitHub account
-- A web browser
+**Frontend:**
+- React 18
+- Vite
+- TailwindCSS
+- Firebase Web SDK
+- React Router v6
+- Axios
 
-## Architecture
-
-### High-Level Overview
-```
-Client (React + Vite)
-    ↓ Firebase Auth (Web SDK)
-    ↓ Authenticated requests with ID token
-Express API Server
-    ↓ Verifies Firebase ID token
-    ↓ Proxies requests
-Airtable REST API
-```
-
-### Why This Architecture?
-
-**Security**: Firebase ID tokens are verified server-side, ensuring only authenticated users can access Airtable data.
-
-**Separation**: Frontend never directly accesses Airtable, keeping your API keys secure.
-
-**Simplicity**: All in one local folder, easy to understand and modify.
-
-## Setup Instructions
-
-For detailed step-by-step instructions, see **[SETUP_GUIDE.md](SETUP_GUIDE.md)**
-
-### Quick Setup Summary
-
-#### 1. Airtable Setup
-
-- Create free Airtable account and base
-- Create "Users" table with fields: uid, email, displayName, phone, role, updatedAt
-- Generate Personal Access Token
-- Get your Base ID
-
-#### 2. Firebase Setup
-- Create Firebase project
-- Enable Email/Password and Google authentication
-- Get Web SDK configuration
-- Create service account JSON for backend
-
-#### 3. Configure Environment Variables
-- Create `server/.env` with Firebase and Airtable credentials
-- Create `client/.env` with Firebase Web SDK config
-- See `.env.example` files for templates
-
-#### 4. Install & Run
-```bash
-npm install
-cd server && npm install
-cd ../client && npm install
-cd ..
-npm run dev  # Runs both client and server
-```
-
-## Usage
-
-### Testing Your Setup
-
-1. **Sign Up**: Create a new account with email/password or Google
-2. **Check Airtable**: Verify a new record was created automatically
-3. **Edit Profile**: Update your display name, phone, and role
-4. **Verify Update**: Check Airtable to see the changes
-5. **Logout & Login**: Test the authentication flow
-6. **Try Google Sign-In**: Test alternative authentication method
-
-### User Flow
-
-1. **First Visit**: User lands on login page
-2. **Sign Up**: User creates account (email/password or Google)
-3. **Auto-Bootstrap**: Backend automatically creates Airtable record with Firebase UID
-4. **Profile Page**: User can view and edit their profile
-5. **Updates**: Changes save directly to Airtable
-6. **Logout**: User can logout and login again
-
-## API Endpoints
-
-### `POST /api/bootstrap`
-Creates or retrieves user record on first login
-- Headers: `Authorization: Bearer <firebase-id-token>`
-- Returns: User object from Airtable
-
-### `GET /api/profile`
-Retrieves current user's profile
-- Headers: `Authorization: Bearer <firebase-id-token>`
-- Returns: User object
-
-### `PUT /api/profile`
-Updates user profile fields
-- Headers: `Authorization: Bearer <firebase-id-token>`
-- Body: `{ displayName?, phone?, role? }`
-- Returns: Updated user object
-
-## Tech Stack
-
-### Frontend
-- **React 18** - UI framework
-- **Vite** - Build tool with super-fast HMR
-- **TailwindCSS** - Utility-first CSS with custom theme
-- **Firebase Web SDK v10** - Authentication
-- **React Router v6** - Client-side routing
-- **Axios** - HTTP client with interceptors
-- **Context API** - State management
-
-### Backend
-- **Node.js 18+** - Runtime
-- **Express** - Web framework
-- **Firebase Admin SDK** - Token verification
-- **Airtable.js** - Database SDK
-- **CORS** - Cross-origin resource sharing
-- **dotenv** - Environment configuration
-
-### Design System: "Plastic Fantastic"
-
-The UI features a modern glassmorphism aesthetic:
-- **Colors**: Soft pastels (#a2d2ff, #ffafcc, #bde0fe) on light blue-gray (#f0f4f8)
-- **Typography**: Nunito font family (400, 700, 800 weights)
-- **Effects**: Glassmorphism cards with backdrop blur and subtle shadows
-- **Animations**: Smooth transitions, parallax background blobs
-- **Responsive**: Mobile-first design approach
-
-## Security
-
-### Best Practices Implemented
-
-- **Token Verification**: All API requests verify Firebase ID tokens server-side
-- **Environment Variables**: Sensitive credentials stored in `.env` files (gitignored)
-- **No Direct Database Access**: Frontend never directly accesses Airtable
-- **CORS Protection**: Configured for specific origins only
-- **Password Requirements**: Minimum 6 characters enforced by Firebase
-- **HTTPS Ready**: Works with SSL/TLS in production
-
-### Security Checklist
-
-- ✅ Never commit `.env` files
-- ✅ Never commit Firebase service account JSON
-- ✅ Use environment variables for all secrets
-- ✅ Verify ID tokens on every API request
-- ✅ Keep dependencies updated
-- ✅ Use HTTPS in production
-- ✅ Configure Firebase security rules
-- ✅ Limit Airtable token permissions
+**Backend:**
+- Node.js 18+
+- Express
+- Firebase Admin SDK
+- Airtable.js
+- CORS
+- dotenv
 
 ## Troubleshooting
 
-### Common Issues
-
-| Issue | Solution |
-|-------|----------|
-| "No response from server" | Verify server is running on port 5000 and `server/.env` exists |
-| Firebase auth errors | Check Firebase credentials in `client/.env` and auth methods enabled |
-| Airtable connection fails | Verify API key, Base ID, and table name in `server/.env` |
-| Port already in use | Change PORT in `server/.env` and update `VITE_API_URL` in `client/.env` |
-| Dependencies issues | Delete `node_modules` folders and reinstall |
-| Invalid token error | Check Firebase service account credentials in `server/.env` |
-
-### Debug Mode
-
-Enable detailed logging:
-```bash
-# In server/.env
-NODE_ENV=development
-
-# Check browser console (F12)
-# Check server terminal output
-```
-
-For more help, see **[SETUP_GUIDE.md](SETUP_GUIDE.md)** Troubleshooting section.
-
-## Development Scripts
-
-```bash
-# Root directory
-npm run dev            # Run both client and server
-npm run dev:client     # Run client only
-npm run dev:server     # Run server only
-npm run install:all    # Install all dependencies
-npm run build          # Build client for production
-
-# Server directory
-npm run dev            # Run with nodemon (auto-restart)
-npm start              # Run in production mode
-
-# Client directory
-npm run dev            # Run dev server
-npm run build          # Build for production
-npm run preview        # Preview production build
-```
-
-## Extending the App
-
-This project is designed to be easily extended. See **[NextSteps.md](NextSteps.md)** for ideas:
-
-### Quick Wins
-- Password reset functionality
-- Email verification
-- Form validation improvements
-- User avatars
-- Dark mode
-
-### Advanced Features
-- Multi-factor authentication
-- Admin dashboard
-- User search and directory
-- Real-time updates
-- Notifications system
-- Multi-language support
-
-## Deployment
-
-### Frontend (Vercel/Netlify)
-1. Build the client: `cd client && npm run build`
-2. Deploy the `client/dist` folder
-3. Set environment variables in hosting dashboard
-
-### Backend (Railway/Render/Heroku)
-1. Push to a separate repo or monorepo
-2. Set environment variables
-3. Ensure `NODE_ENV=production`
-4. Update `VITE_API_URL` in client to point to production API
-
-### Environment Variables for Production
-- Update Firebase authorized domains
-- Use production Airtable base
-- Enable HTTPS
-- Configure CORS for production domain
-
-## Contributing
-
-Feel free to submit issues and enhancement requests!
-
-### Development Guidelines
-- Follow existing code style
-- Use meaningful commit messages
-- Test changes thoroughly
-- Update documentation as needed
-
-## Resources
-
-- **Firebase Docs**: https://firebase.google.com/docs
-- **Airtable API**: https://airtable.com/developers/web/api/introduction
-- **React Docs**: https://react.dev
-- **Vite Docs**: https://vitejs.dev
-- **TailwindCSS**: https://tailwindcss.com
+| Problem | Solution |
+|---------|----------|
+| Server won't start | Check `server/.env` exists and has all required variables |
+| "No response from server" | Verify server is running on port 5000 |
+| Authentication fails | Check Firebase credentials in `client/.env` |
+| Airtable errors | Verify PAT and Base ID in `server/.env` |
+| Port 5000 in use | Change PORT in `server/.env`, update VITE_API_URL in `client/.env` |
+| Can't log in | Clear browser cache, check Firebase console for user |
+| Issues not loading | Verify Issues table exists in Airtable with correct name |
 
 ## Support
 
-- Read **[SETUP_GUIDE.md](SETUP_GUIDE.md)** for detailed setup help
-- Check **[NextSteps.md](NextSteps.md)** for enhancement ideas
-- Review GitHub Issues for common problems
-- Check browser console (F12) for client errors
-- Check server terminal for API errors
-
-## License
-
-MIT
+For issues or questions:
+1. Check browser console (F12) for errors
+2. Check server terminal for API errors
+3. Verify all environment variables are set correctly
+4. Ensure Firebase and Airtable credentials are valid
 
 ---
-
-**Built with ❤️ using Firebase, Airtable, React, and the Plastic Fantastic design system**
-
-**Estimated setup time**: 15 minutes | **Estimated build time**: Production-ready out of the box
-

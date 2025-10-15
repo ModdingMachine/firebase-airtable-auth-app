@@ -10,7 +10,7 @@ export default {
         'pastel-bg': '#f0f4f8',
         'pastel-blue': '#a2d2ff',
         'pastel-pink': '#ffafcc',
-        'pastel-light-blue': '#bde0fe',
+        'light-pastel-blue': '#bde0fe',
       },
       fontFamily: {
         sans: ['Nunito', 'sans-serif'],
