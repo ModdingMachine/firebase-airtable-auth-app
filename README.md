@@ -1,12 +1,12 @@
 # CHE Dev Trial Project
 
-A complete role-based web application with Firebase authentication and Airtable database integration.
+A complete role-based web application with Firebase authentication and Airtable database integration. Features beautiful glassmorphism UI with animated backgrounds, real-time syncing, and comprehensive user management.
 
 ## Prerequisites
 
 - Node.js 18+ installed
-- Access to the Firebase project
-- Access to the Airtable base
+- Access to the Firebase project (already granted)
+- Access to the Airtable base (already granted)
 - A modern web browser
 
 ## Setup Instructions
@@ -17,8 +17,11 @@ A complete role-based web application with Firebase authentication and Airtable 
 # Navigate to project directory
 cd "CHE Dev Trial Project"
 
-# Install dependencies
+# Install all dependencies
 npm install
+cd server && npm install
+cd ../client && npm install
+cd ..
 ```
 
 ### 2. Configure Environment Variables
@@ -80,93 +83,241 @@ The application will automatically open at **http://localhost:5173**
 ## Complete Feature List
 
 ### Authentication & Security
-- Email/password login and signup
-- Google account login and signup
-- Sessions persist across browser restarts
-- Minimum 5-minute session length with activity tracking
-- Detects and handles whether account uses Google or password
-- Prefills signup if account does not exist on login attempt
-- Validates email and phone formats
-- All API calls require valid, server-verified Firebase tokens
-- Protected routes (redirect if not authenticated)
-- Access control based on user role
+- ✅ **Email/Password Login** - Secure login with Firebase Auth
+- ✅ **Email/Password Signup** - Create new accounts with validation
+- ✅ **Google OAuth** - Sign in/up with Google account
+- ✅ **Auto-Login Persistence** - Stays logged in across browser sessions
+- ✅ **Session Management** - 5-minute minimum session with activity tracking
+- ✅ **Smart Account Detection** - Automatically detects if account uses Google or password
+- ✅ **Auto-Redirect on Invalid Login** - Prefills signup form if account doesn't exist
+- ✅ **Email Validation** - Validates email format (user@domain.com)
+- ✅ **Phone Validation** - Supports multiple phone formats internationally
+- ✅ **Token Verification** - Server-side Firebase token validation on all API calls
+- ✅ **Protected Routes** - Redirects to login if not authenticated
+- ✅ **Role-Based Access Control** - Different permissions for each role
 
 ### User Roles & Portals
-- Four user roles: Parent, Educator, Admin, IT
-- Each role has a dedicated portal/interface
-- Dashboard automatically routes to the right portal based on role
-- UI features shown depend on user role
+- ✅ **4 User Roles** - Parent, Educator, Admin, IT
+- ✅ **Parent Portal** - Dedicated interface for parents
+- ✅ **Educator Portal** - Dedicated interface for educators
+- ✅ **Admin Portal** - Full system management capabilities
+- ✅ **IT Portal** - Technical support and issue management
+- ✅ **Smart Dashboard** - Auto-routes to appropriate portal based on role
+- ✅ **Role-Based UI** - Each portal shows role-specific features
 
 ### Profile Management
-- View and edit your profile (display name, phone, role)
-- See your current role
-- Real-time sync of profile changes with Airtable
-- New signups can provide name and phone at registration
-- Airtable record created automatically on first login
+- ✅ **View Profile** - See all profile information
+- ✅ **Edit Display Name** - Update how your name appears
+- ✅ **Edit Phone Number** - Update contact information
+- ✅ **View Role** - See your assigned role
+- ✅ **Profile Page** - Dedicated page for profile management
+- ✅ **Real-Time Sync** - Profile changes sync with Airtable automatically
+- ✅ **Pending Profile Data** - New signups can add name/phone during registration
+- ✅ **Auto-Bootstrap** - First login creates Airtable record automatically
 
 ### Admin Features
-- Search and manage all users
-- Edit user display name, phone, and role (except your own as admin)
-- Change roles between Parent, Educator, Admin, and IT
-- Duplicate users are automatically filtered out of results
-- Dashboard for centralized user management
-- Admins can view all IT tickets
+- ✅ **User Search** - Search all users by email or name
+- ✅ **Edit User Profiles** - Modify any user's display name, phone, or role
+- ✅ **Role Assignment** - Change user roles (Parent, Educator, Admin, IT)
+- ✅ **Admin Protection** - Cannot edit own profile through admin tools
+- ✅ **Duplicate Prevention** - Automatically removes duplicate search results
+- ✅ **User Management Dashboard** - Centralized user administration
+- ✅ **View IT Tickets** - Access to all system issues
 
 ### IT Ticket System
-- Parents and Educators can submit IT tickets with descriptions
-- All issues tracked and stored
-- IT and Admin roles can view and manage all tickets
-- Filter tickets by open/resolved status
-- IT and Admin can mark issues resolved
-- Each ticket records who submitted it
-- Issue list updates in real time (every 5 seconds)
-- Shows counts of open, resolved, and total issues
-- Ignores any empty/blank issues from the database
+- ✅ **Submit Tickets** - Parents and Educators can report issues
+- ✅ **Issue Tracking** - Full issue/description storage
+- ✅ **View All Issues** - IT and Admin can see all tickets
+- ✅ **Filter by Status** - Toggle between open and resolved tickets
+- ✅ **Mark Resolved** - IT and Admin can close tickets
+- ✅ **Auto-Attribution** - System automatically logs who submitted each ticket
+- ✅ **Real-Time Updates** - Issues sync every 5 seconds
+- ✅ **Issue Statistics** - Count of open, resolved, and total issues
+- ✅ **Blank Record Filtering** - Ignores empty database entries
 
 ### UI/UX Features
-- Modern design with frosted glass cards and animated backgrounds
-- Responsive layout (desktop, tablet, mobile)
-- Loading states and indicators, error and success messages
-- Sync status shown in UI
-- Spinners for async actions
-- Real-time validation for forms
-- Hover effects and smooth animations
-- Custom reusable UI components
+- ✅ **Glassmorphism Design** - Modern frosted glass card effects
+- ✅ **Animated Backgrounds** - 6 floating pastel blobs with physics
+- ✅ **Responsive Design** - Works on desktop, tablet, and mobile
+- ✅ **Loading States** - Clear feedback during operations
+- ✅ **Error Notifications** - User-friendly error messages
+- ✅ **Success Messages** - Confirmation of successful actions
+- ✅ **Sync Indicators** - Shows when data is syncing with database
+- ✅ **Loading Spinners** - Visual feedback for async operations
+- ✅ **Form Validation** - Real-time input validation
+- ✅ **Hover Effects** - Interactive button and card states
+- ✅ **Smooth Transitions** - Polished animations throughout
+- ✅ **Custom Components** - Reusable Button, Input, Select, GlassCard components
 
 ### Database Integration
-- Uses Airtable for users and issues/tickets
-- Profiles synced every 10 seconds, issues every 5 seconds
-- UI updates immediately on change, data syncs in the background
-- System recovers gracefully from sync errors
-- Airtable connection is validated at server start
-- Server filters and deduplicates records for performance
+- ✅ **Airtable Users Table** - Stores all user profile data
+- ✅ **Airtable Issues Table** - Stores IT tickets
+- ✅ **Real-Time Polling** - Background sync every 10 seconds for profiles
+- ✅ **Real-Time Polling** - Background sync every 5 seconds for issues
+- ✅ **Optimistic Updates** - UI updates immediately, syncs in background
+- ✅ **Error Recovery** - Graceful handling of sync failures
+- ✅ **Connection Testing** - Validates Airtable connection on server start
+- ✅ **Query Filtering** - Server-side data filtering for performance
+- ✅ **Deduplication** - Removes duplicate records automatically
 
 ### Developer Experience
-- Hot reload for front and back end
-- Client and server can be run together in development
-- Console logging and error details for debugging
-- Uses environment variables for credentials and config
-- Modular, maintainable code structure with separation of concerns
-- Centralized state with Context API
-- API calls managed through Axios service layer
-
----
-
-#### Test Accounts for Feature Testing
-
-| Username            | Password |
-|---------------------|----------|
-| parent@test.com     | password |
-| educator@test.com   | password |
-| admin@test.com      | password |
-| it@test.com         | password |
-
+- ✅ **Hot Module Replacement** - Instant updates during development
+- ✅ **Concurrent Dev Mode** - Runs client and server together
+- ✅ **Console Logging** - Detailed logs for debugging
+- ✅ **Error Details** - Comprehensive error information
+- ✅ **Environment Variables** - Secure credential management
+- ✅ **Modular Architecture** - Clean separation of concerns
+- ✅ **Context API** - Centralized state management
+- ✅ **API Service Layer** - Axios with interceptors
 
 ---
 
 ## Functionality Testing Checklist
 
 ### Authentication Tests
+
+**Email/Password Authentication:**
+- [ ] Create account with email and password
+- [ ] Log out and log back in with same credentials
+- [ ] Try logging in with wrong password (should show error)
+- [ ] Try logging in with non-existent email (should redirect to signup with email prefilled)
+- [ ] Close browser and reopen - should stay logged in
+- [ ] Refresh page while logged in - should stay logged in
+
+**Google Authentication:**
+- [ ] Sign in with Google account
+- [ ] Verify profile is created in Airtable
+- [ ] Log out and sign in with Google again
+- [ ] Try logging in with email/password for a Google account (should suggest Google login)
+- [ ] Close browser and reopen - should stay logged in
+
+**Account Detection:**
+- [ ] Create account with email/password
+- [ ] Log out, then try to create another account with same email (should show error)
+- [ ] Try logging in with password for a Google-only account (should suggest Google)
+
+### Profile Management Tests
+
+**View and Edit Profile:**
+- [ ] Navigate to "My Profile" page
+- [ ] View current profile information
+- [ ] Update display name and save
+- [ ] Update phone number and save
+- [ ] Verify changes appear in Airtable Users table
+- [ ] Refresh page - changes should persist
+
+**Profile During Signup:**
+- [ ] Sign up with new email
+- [ ] Add display name during signup
+- [ ] Add phone number during signup
+- [ ] Verify information appears in profile after login
+
+### Role-Based Portal Tests
+
+**Parent Portal:**
+- [ ] Log in as Parent role user
+- [ ] Verify you see Parent Portal
+- [ ] Submit an IT ticket
+- [ ] Verify ticket appears in Airtable Issues table
+
+**Educator Portal:**
+- [ ] Log in as Educator role user
+- [ ] Verify you see Educator Portal
+- [ ] Submit an IT ticket
+- [ ] Verify ticket appears in Airtable Issues table
+
+**Admin Portal:**
+- [ ] Log in as Admin role user
+- [ ] Verify you see Admin Portal
+- [ ] View system error logs section
+- [ ] Expand error logs and see IT tickets
+
+**IT Portal:**
+- [ ] Log in as IT role user
+- [ ] Verify you see IT Portal
+- [ ] View issue statistics (open/resolved/total)
+- [ ] See list of open issues
+
+### Admin Features Tests
+
+**User Search:**
+- [ ] Go to Admin Portal
+- [ ] Search for user by email
+- [ ] Search for user by name
+- [ ] Verify no duplicate results appear
+- [ ] Try searching with no results
+
+**User Management:**
+- [ ] Search for a user
+- [ ] Click "Edit" on a user (not yourself)
+- [ ] Change user's display name
+- [ ] Change user's phone number
+- [ ] Change user's role
+- [ ] Save changes
+- [ ] Verify changes in Airtable Users table
+- [ ] Try to edit your own profile (should be disabled)
+
+### IT Ticket System Tests
+
+**Submit Tickets (as Parent/Educator):**
+- [ ] Log in as Parent or Educator
+- [ ] Scroll to "Submit IT Ticket" section
+- [ ] Enter issue summary
+- [ ] Enter detailed description
+- [ ] Submit ticket
+- [ ] Verify success message
+- [ ] Check Airtable Issues table for new ticket
+
+**Manage Tickets (as IT/Admin):**
+- [ ] Log in as IT or Admin
+- [ ] View list of open issues
+- [ ] Check issue statistics are correct
+- [ ] Toggle "Show All" to see resolved issues
+- [ ] Click "Mark Resolved" on an issue
+- [ ] Verify issue disappears from open list
+- [ ] Check Airtable - issue should be marked resolved
+
+**Real-Time Sync:**
+- [ ] Open IT Portal
+- [ ] In another window, manually add issue to Airtable
+- [ ] Wait 5 seconds
+- [ ] Verify new issue appears automatically
+- [ ] Watch for "Syncing with database..." indicator
+
+### UI/UX Tests
+
+**Visual Elements:**
+- [ ] Verify animated pastel blobs in background
+- [ ] Verify glassmorphism cards are semi-transparent
+- [ ] Hover over buttons - should show hover effects
+- [ ] Verify loading spinners appear during operations
+- [ ] Check sync indicator appears during background syncs
+
+**Responsive Design:**
+- [ ] Test on desktop (full screen)
+- [ ] Test on tablet size (resize browser)
+- [ ] Test on mobile size (resize browser)
+- [ ] Verify all elements remain accessible
+
+**Error Handling:**
+- [ ] Try submitting form with empty required fields
+- [ ] Try invalid email format
+- [ ] Try invalid phone format
+- [ ] Verify error messages are clear and helpful
+- [ ] Stop server and try to load data (should show error)
+
+### Session & Persistence Tests
+
+**Session Behavior:**
+- [ ] Log in and interact with app (click, scroll)
+- [ ] Wait 5 minutes without activity
+- [ ] Interact again - should still be logged in
+- [ ] Close browser tab
+- [ ] Reopen and navigate to site - should be logged in
+- [ ] Log out manually
+- [ ] Try accessing protected pages - should redirect to login
+
+---
 
 **Email/Password Authentication:**
 - [ ] Create account with email and password
