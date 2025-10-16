@@ -102,7 +102,13 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async (silent = false) => {
     try {
       if (!silent) setSyncing(true);
-      const data = await bootstrapUser();
+      
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout - server may be unavailable')), 10000)
+      );
+      
+      const data = await Promise.race([bootstrapUser(), timeoutPromise]);
       
       // Check for pending profile updates from signup
       const pendingDisplayName = localStorage.getItem('pendingDisplayName');
@@ -147,6 +153,21 @@ export const AuthProvider = ({ children }) => {
       console.error('Error fetching user profile:', err);
       if (!silent) {
         setError(err.message);
+        
+        // If it's a timeout or connection error, create a fallback profile
+        if (err.message.includes('timeout') || err.message.includes('No response from server')) {
+          console.log('Creating fallback profile due to server unavailability');
+          const fallbackProfile = {
+            email: currentUser?.email || 'unknown@example.com',
+            role: 'Parent', // Default role
+            displayName: currentUser?.displayName || 'User',
+            phone: '',
+            id: currentUser?.uid || 'fallback-id'
+          };
+          setUserProfile(fallbackProfile);
+          return fallbackProfile;
+        }
+        
         throw err;
       }
     } finally {

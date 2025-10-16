@@ -40,6 +40,7 @@ AIRTABLE_BASE_ID=appaRLpjx3EGZlgke
 AIRTABLE_PAT=[Your Personal Access Token - ask project admin]
 AIRTABLE_TABLE_NAME=Users
 AIRTABLE_ISSUES_TABLE_NAME=Issues
+AIRTABLE_USER_LOGS_TABLE_NAME=UserLogs
 
 # Server Configuration
 PORT=5000
@@ -66,7 +67,35 @@ VITE_API_URL=http://localhost:5000
 VITE_SYNC_INTERVAL=10000
 ```
 
-### 3. Run the Application
+### 3. Set Up Airtable Tables
+
+Make sure you have the following tables in your Airtable base:
+
+**Users Table** (should already exist):
+- `uid` (Single line text)
+- `email` (Email)
+- `displayName` (Single line text)
+- `phone` (Phone number)
+- `role` (Single select: Parent, Educator, Admin, IT)
+- `updatedAt` (Last modified time)
+
+**Issues Table** (should already exist):
+- `Issue` (Single line text)
+- `Description` (Long text)
+- `Resolved` (Checkbox)
+- `Created` (Created time)
+
+**UserLogs Table** (new - for audit logging):
+- `uid` (Single line text)
+- `email` (Email)
+- `displayName` (Single line text)
+- `phone` (Phone number)
+- `role` (Single select: Parent, Educator, Admin, IT)
+- `timestamp` (Date with time)
+
+Note: The UserLogs table automatically logs all user profile updates. Each log entry contains a complete snapshot of the user's profile at the time of the update.
+
+### 4. Run the Application
 
 ```bash
 # From project root - runs both client and server
@@ -103,6 +132,8 @@ The application will automatically open at **http://localhost:5173**
 - Real-time sync of profile changes with Airtable
 - New signups can provide name and phone at registration
 - Airtable record created automatically on first login
+- All profile updates are automatically logged to UserLogs table
+- Audit trail tracks both self-updates and admin changes to user profiles
 
 ### Admin Features
 - Search and manage all users
@@ -134,8 +165,9 @@ The application will automatically open at **http://localhost:5173**
 - Custom reusable UI components
 
 ### Database Integration
-- Uses Airtable for users and issues/tickets
+- Uses Airtable for users, issues/tickets, and user update logs
 - Profiles synced every 10 seconds, issues every 5 seconds
+- All user profile changes automatically logged to UserLogs table
 - UI updates immediately on change, data syncs in the background
 - System recovers gracefully from sync errors
 - Airtable connection is validated at server start

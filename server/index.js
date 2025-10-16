@@ -24,6 +24,7 @@ const airtableBase = new Airtable({ apiKey: process.env.AIRTABLE_PAT }).base(
 );
 const usersTable = airtableBase(process.env.AIRTABLE_TABLE_NAME || 'Users');
 const issuesTable = airtableBase(process.env.AIRTABLE_ISSUES_TABLE_NAME || 'Issues');
+const userLogsTable = airtableBase(process.env.AIRTABLE_USER_LOGS_TABLE_NAME || 'UserLogs');
 
 // Initialize Express
 const app = express();
@@ -75,15 +76,15 @@ const findUserByUID = async (uid) => {
 
     return records.length > 0 ? records[0] : null;
   } catch (error) {
-    console.error('❌ Error finding user in Airtable:', error);
+    console.error('Error finding user in Airtable:', error);
     if (error.statusCode === 403) {
-      console.error('🔐 AUTHORIZATION ERROR: Check your Airtable token permissions!');
+      console.error('AUTHORIZATION ERROR: Check your Airtable token permissions!');
       console.error('   Your token needs:');
       console.error('   - data.records:read scope');
       console.error('   - data.records:write scope');
       console.error('   - Access to base:', process.env.AIRTABLE_BASE_ID);
     } else if (error.statusCode === 404) {
-      console.error('❌ BASE/TABLE NOT FOUND: Check your Base ID and table name');
+      console.error('BASE/TABLE NOT FOUND: Check your Base ID and table name');
       console.error('   Base ID:', process.env.AIRTABLE_BASE_ID);
       console.error('   Table Name:', process.env.AIRTABLE_TABLE_NAME);
     }
@@ -103,7 +104,7 @@ const findUserByEmail = async (email) => {
 
     return records.length > 0 ? records[0] : null;
   } catch (error) {
-    console.error('❌ Error finding user by email in Airtable:', error);
+    console.error('Error finding user by email in Airtable:', error);
     throw error;
   }
 };
@@ -119,6 +120,34 @@ const formatUserRecord = (record) => {
     role: record.fields.role || '',
     updatedAt: record.fields.updatedAt,
   };
+};
+
+// Helper function to log user updates to UserLogs table
+const logUserUpdate = async (oldRecord, updatedFields) => {
+  try {
+    // Create a log entry with the current timestamp and all current profile values
+    // We log the current state after the update (merging old values with updated ones)
+    const logFields = {
+      uid: oldRecord.fields.uid,
+      email: oldRecord.fields.email,
+      displayName: updatedFields.displayName !== undefined ? updatedFields.displayName : (oldRecord.fields.displayName || ''),
+      phone: updatedFields.phone !== undefined ? updatedFields.phone : (oldRecord.fields.phone || ''),
+      role: updatedFields.role !== undefined ? updatedFields.role : (oldRecord.fields.role || 'Parent'),
+      timestamp: new Date().toISOString(),
+    };
+
+    // Create the log entry in UserLogs table
+    await userLogsTable.create([
+      {
+        fields: logFields,
+      },
+    ]);
+
+    console.log(`User update logged for ${oldRecord.fields.uid}: ${Object.keys(updatedFields).join(', ')}`);
+  } catch (error) {
+    console.error('Error logging user update:', error);
+    // Don't throw error - logging failure shouldn't break the update operation
+  }
 };
 
 // Routes
@@ -223,7 +252,7 @@ app.post('/api/bootstrap', authenticateUser, async (req, res) => {
       },
     ]);
 
-    console.log(`✅ New user created in Airtable: ${email} (${uid})`);
+    console.log(`New user created in Airtable: ${email} (${uid})`);
 
     return res.status(201).json({
       message: 'User created successfully',
@@ -295,6 +324,9 @@ app.put('/api/profile', authenticateUser, async (req, res) => {
       },
     ]);
 
+    // Log the update to UserLogs table
+    await logUserUpdate(userRecord, updateFields);
+
     return res.json({
       message: 'Profile updated successfully',
       user: formatUserRecord(updatedRecord[0]),
@@ -364,7 +396,7 @@ app.get('/api/admin/users/search', authenticateUser, requireAdmin, async (req, r
       new Map(users.map(user => [user.uid, user])).values()
     );
     
-    console.log(`🔍 User search for "${searchTerm}": Found ${records.length} records, ${uniqueUsers.length} unique users`);
+    console.log(`User search for "${searchTerm}": Found ${records.length} records, ${uniqueUsers.length} unique users`);
 
     return res.json({
       users: uniqueUsers,
@@ -429,7 +461,10 @@ app.put('/api/admin/users/:uid', authenticateUser, requireAdmin, async (req, res
       },
     ]);
 
-    console.log(`✅ Admin ${adminUid} updated user ${targetUid}`);
+    // Log the update to UserLogs table
+    await logUserUpdate(userRecord, updateFields);
+
+    console.log(`Admin ${adminUid} updated user ${targetUid}`);
 
     return res.json({
       message: 'User updated successfully',
@@ -498,7 +533,7 @@ app.post('/api/issues', authenticateUser, async (req, res) => {
       },
     ]);
 
-    console.log(`📋 New issue reported by ${email}: ${issue}`);
+    console.log(`New issue reported by ${email}: ${issue}`);
 
     return res.status(201).json({
       message: 'Issue reported successfully',
@@ -571,7 +606,7 @@ app.get('/api/issues', authenticateUser, requireITOrAdmin, async (req, res) => {
       count: issues.length,
     });
   } catch (error) {
-    console.error('❌ Issue fetch error:', error);
+    console.error('Issue fetch error:', error);
     console.error('Error details:', {
       statusCode: error.statusCode,
       message: error.message,
@@ -611,7 +646,7 @@ app.put('/api/issues/:id/resolve', authenticateUser, requireITOrAdmin, async (re
       },
     ]);
 
-    console.log(`✅ Issue ${id} resolved by ${email}`);
+    console.log(`Issue ${id} resolved by ${email}`);
 
     return res.json({
       message: 'Issue marked as resolved',
@@ -644,16 +679,16 @@ app.use((err, req, res, next) => {
 // Test Airtable connection on startup
 const testAirtableConnection = async () => {
   try {
-    console.log('🔍 Testing Airtable connection...');
+    console.log('Testing Airtable connection...');
     const records = await usersTable.select({ maxRecords: 1 }).firstPage();
-    console.log('✅ Airtable connection successful!');
+    console.log('Airtable connection successful!');
     console.log(`   Found ${records.length > 0 ? 'existing records' : 'empty table (ready for new users)'}`);
   } catch (error) {
-    console.error('❌ AIRTABLE CONNECTION FAILED!');
+    console.error('AIRTABLE CONNECTION FAILED!');
     console.error('   Error:', error.message);
     console.error('   Status:', error.statusCode);
     console.error('');
-    console.error('🔧 TROUBLESHOOTING:');
+    console.error('TROUBLESHOOTING:');
     
     if (error.statusCode === 403) {
       console.error('   1. Go to: https://airtable.com/create/tokens');
@@ -661,8 +696,8 @@ const testAirtableConnection = async () => {
       console.error('   3. Under "Access", make sure this base is selected:');
       console.error('      Base ID:', process.env.AIRTABLE_BASE_ID);
       console.error('   4. Make sure these scopes are checked:');
-      console.error('      ✓ data.records:read');
-      console.error('      ✓ data.records:write');
+      console.error('      - data.records:read');
+      console.error('      - data.records:write');
       console.error('   5. Save and copy the token (starts with "pat")');
       console.error('   6. Update AIRTABLE_PAT in server/.env');
       console.error('   7. Restart the server');
@@ -678,31 +713,31 @@ const testAirtableConnection = async () => {
 // Start server
 app.listen(PORT, async () => {
   console.log('=================================');
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
   console.log('Environment:', process.env.NODE_ENV);
   console.log('=================================');
   console.log('Configuration Check:');
-  console.log('Firebase Project ID:', process.env.FIREBASE_PROJECT_ID ? '✅ Set' : '❌ Missing');
-  console.log('Firebase Private Key:', process.env.FIREBASE_PRIVATE_KEY ? '✅ Set' : '❌ Missing');
-  console.log('Firebase Client Email:', process.env.FIREBASE_CLIENT_EMAIL ? '✅ Set' : '❌ Missing');
+  console.log('Firebase Project ID:', process.env.FIREBASE_PROJECT_ID ? 'Set' : 'Missing');
+  console.log('Firebase Private Key:', process.env.FIREBASE_PRIVATE_KEY ? 'Set' : 'Missing');
+  console.log('Firebase Client Email:', process.env.FIREBASE_CLIENT_EMAIL ? 'Set' : 'Missing');
   
   // Check if using Personal Access Token (new format)
   const airtablePat = process.env.AIRTABLE_PAT;
   if (airtablePat) {
     if (airtablePat.startsWith('pat')) {
-      console.log('Airtable PAT: ✅ Set (Personal Access Token)');
+      console.log('Airtable PAT: Set (Personal Access Token)');
     } else if (airtablePat.startsWith('key')) {
-      console.log('Airtable PAT: ⚠️  Set (OLD FORMAT - use Personal Access Token instead!)');
-      console.log('   → Create new token at: https://airtable.com/create/tokens');
+      console.log('Airtable PAT: Set (OLD FORMAT - use Personal Access Token instead!)');
+      console.log('   Create new token at: https://airtable.com/create/tokens');
     } else {
-      console.log('Airtable PAT: ⚠️  Set (unknown format)');
+      console.log('Airtable PAT: Set (unknown format)');
     }
   } else {
-    console.log('Airtable PAT: ❌ Missing');
+    console.log('Airtable PAT: Missing');
   }
   
-  console.log('Airtable Base ID:', process.env.AIRTABLE_BASE_ID || '❌ Missing');
-  console.log('Airtable Table Name:', process.env.AIRTABLE_TABLE_NAME || '❌ Missing');
+  console.log('Airtable Base ID:', process.env.AIRTABLE_BASE_ID || 'Missing');
+  console.log('Airtable Table Name:', process.env.AIRTABLE_TABLE_NAME || 'Missing');
   console.log('=================================');
   
   // Test the Airtable connection

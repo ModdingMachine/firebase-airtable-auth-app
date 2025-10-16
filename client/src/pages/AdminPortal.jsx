@@ -6,10 +6,9 @@ import Button from '../components/Button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdminUserManagement from '../components/AdminUserManagement';
 import IssuesList from '../components/IssuesList';
-import SyncIndicator from '../components/SyncIndicator';
 
 const AdminPortal = () => {
-  const { currentUser, userProfile, logout, syncing, loading } = useAuth();
+  const { currentUser, userProfile, logout, loading } = useAuth();
   const navigate = useNavigate();
   const [showErrorLogs, setShowErrorLogs] = useState(false);
   const [showResolvedIssues, setShowResolvedIssues] = useState(false);
@@ -39,7 +38,6 @@ const AdminPortal = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4">
-      <SyncIndicator syncing={syncing} />
       
       {/* Header */}
       <div className="w-full max-w-6xl mt-8 mb-6 flex justify-between items-center z-10">

@@ -104,9 +104,17 @@ const ProfilePage = () => {
       
       <GlassCard className="w-full max-w-2xl p-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-4xl font-extrabold text-gray-800 tracking-tighter">
-            My Profile
-          </h1>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => navigate('/dashboard')}
+              variant="secondary"
+            >
+              ← Back
+            </Button>
+            <h1 className="text-4xl font-extrabold text-gray-800 tracking-tighter">
+              My Profile
+            </h1>
+          </div>
           <Button
             onClick={handleLogout}
             variant="danger"
