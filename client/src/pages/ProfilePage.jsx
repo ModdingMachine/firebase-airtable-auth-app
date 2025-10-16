@@ -5,7 +5,6 @@ import { getProfile, updateProfile } from '../services/api';
 import GlassCard from '../components/GlassCard';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import BackgroundBlobs from '../components/BackgroundBlobs';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const ProfilePage = () => {
@@ -101,8 +100,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-pastel-bg flex items-center justify-center p-4">
-      <BackgroundBlobs />
+    <div className="min-h-screen flex items-center justify-center p-4">
       
       <GlassCard className="w-full max-w-2xl p-8">
         <div className="flex justify-between items-center mb-6">

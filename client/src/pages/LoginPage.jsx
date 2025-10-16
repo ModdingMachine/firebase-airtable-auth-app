@@ -7,7 +7,6 @@ import { setPersistence, browserLocalPersistence, browserSessionPersistence } fr
 import GlassCard from '../components/GlassCard';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import BackgroundBlobs from '../components/BackgroundBlobs';
 import AuthLoading from '../components/AuthLoading';
 
 const LoginPage = () => {
@@ -155,8 +154,7 @@ const LoginPage = () => {
     <>
       {googleLoading && <AuthLoading message="Signing you in with Google..." />}
       
-      <div className="min-h-screen bg-pastel-bg flex items-center justify-center p-4">
-        <BackgroundBlobs />
+      <div className="min-h-screen flex items-center justify-center p-4">
       
       <GlassCard className="w-full max-w-md p-8">
         <h1 className="text-4xl font-extrabold text-gray-800 mb-2 tracking-tighter text-center">

@@ -5,12 +5,14 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import Dashboard from './pages/Dashboard';
+import BackgroundBlobs from './components/BackgroundBlobs';
 
 function App() {
   return (
     <Router>
       <ErrorProvider>
         <AuthProvider>
+          <BackgroundBlobs />
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<LoginPage />} />

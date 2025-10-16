@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import GlassCard from '../components/GlassCard';
 import Button from '../components/Button';
-import BackgroundBlobs from '../components/BackgroundBlobs';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdminUserManagement from '../components/AdminUserManagement';
 import IssuesList from '../components/IssuesList';
@@ -39,8 +38,7 @@ const AdminPortal = () => {
   }
 
   return (
-    <div className="min-h-screen bg-pastel-bg flex flex-col items-center p-4">
-      <BackgroundBlobs />
+    <div className="min-h-screen flex flex-col items-center p-4">
       <SyncIndicator syncing={syncing} />
       
       {/* Header */}

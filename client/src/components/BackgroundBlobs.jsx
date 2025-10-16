@@ -4,6 +4,7 @@ const BackgroundBlobs = () => {
   const containerRef = useRef(null);
   const blobsRef = useRef([]);
   const animationFrameRef = useRef(null);
+  const mouseRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const pastelColors = [
@@ -22,6 +23,7 @@ const BackgroundBlobs = () => {
     if (!container) return;
 
     // Create blob elements
+    console.log('Creating background blobs...');
     for (let i = 0; i < numBlobs; i++) {
       const blobEl = document.createElement('div');
       blobEl.className = 'blob-element';
@@ -39,6 +41,7 @@ const BackgroundBlobs = () => {
       blobEl.style.willChange = 'transform';
       
       container.appendChild(blobEl);
+      console.log(`Created blob ${i + 1} with color ${pastelColors[i % pastelColors.length]}`);
       
       blobsRef.current.push({
         el: blobEl,
@@ -50,19 +53,49 @@ const BackgroundBlobs = () => {
       });
     }
 
+    // Mouse interaction
+    const handleMouseMove = (e) => {
+      mouseRef.current.x = e.clientX;
+      mouseRef.current.y = e.clientY;
+    };
+
     // Animation loop
     const animateBlobs = () => {
       blobsRef.current.forEach(blob => {
+        // Calculate distance from mouse
+        const blobCenterX = blob.x + blob.size / 2;
+        const blobCenterY = blob.y + blob.size / 2;
+        const dx = blobCenterX - mouseRef.current.x;
+        const dy = blobCenterY - mouseRef.current.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Mouse repulsion effect
+        const repulsionRadius = 200; // Distance at which mouse starts affecting blobs
+        if (distance < repulsionRadius) {
+          const repulsionStrength = (repulsionRadius - distance) / repulsionRadius;
+          const repulsionForce = repulsionStrength * 0.3; // Adjust strength here
+          
+          // Normalize direction and apply repulsion
+          const normalizedDx = dx / distance;
+          const normalizedDy = dy / distance;
+          
+          blob.vx += normalizedDx * repulsionForce;
+          blob.vy += normalizedDy * repulsionForce;
+        }
+        
+        // Apply velocity with some damping
         blob.x += blob.vx;
         blob.y += blob.vy;
+        blob.vx *= 0.98; // Damping to prevent infinite acceleration
+        blob.vy *= 0.98;
 
         // Bounce off edges
         if (blob.x <= 0 || blob.x + blob.size >= window.innerWidth) {
-          blob.vx *= -1;
+          blob.vx *= -0.8; // Add some energy loss on bounce
           blob.x = Math.max(0, Math.min(blob.x, window.innerWidth - blob.size));
         }
         if (blob.y <= 0 || blob.y + blob.size >= window.innerHeight) {
-          blob.vy *= -1;
+          blob.vy *= -0.8; // Add some energy loss on bounce
           blob.y = Math.max(0, Math.min(blob.y, window.innerHeight - blob.size));
         }
 
@@ -73,6 +106,9 @@ const BackgroundBlobs = () => {
     };
 
     animateBlobs();
+
+    // Add mouse event listener
+    window.addEventListener('mousemove', handleMouseMove);
 
     // Handle window resize
     const handleResize = () => {
@@ -89,6 +125,7 @@ const BackgroundBlobs = () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
       blobsRef.current.forEach(blob => {
         if (blob.el && blob.el.parentNode) {
@@ -102,8 +139,11 @@ const BackgroundBlobs = () => {
   return (
     <div 
       ref={containerRef}
-      className="fixed inset-0 overflow-hidden pointer-events-none -z-10"
-      style={{ filter: 'blur(80px)' }}
+      className="fixed inset-0 overflow-hidden pointer-events-none"
+      style={{ 
+        filter: 'blur(80px)',
+        zIndex: -1
+      }}
     />
   );
 };

@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { getIssues, resolveIssue } from '../services/api';
 import GlassCard from '../components/GlassCard';
 import Button from '../components/Button';
-import BackgroundBlobs from '../components/BackgroundBlobs';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SyncIndicator from '../components/SyncIndicator';
 
@@ -110,8 +109,7 @@ const ITPortal = () => {
   const unresolvedCount = issues.filter(i => !i.resolved).length;
 
   return (
-    <div className="min-h-screen bg-pastel-bg flex flex-col items-center p-4">
-      <BackgroundBlobs />
+    <div className="min-h-screen flex flex-col items-center p-4">
       <SyncIndicator syncing={syncing || profileSyncing} />
       
       {/* Header */}
